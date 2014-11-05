@@ -1,0 +1,3 @@
+*.pb.*
+*.kdev4
+build/
