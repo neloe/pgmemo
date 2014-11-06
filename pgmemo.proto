@@ -1,9 +1,5 @@
 message PGMemoRequest{
-
-  required string server = 1;
   required string query = 2;
-  optional string user = 3;
-  optional string pass = 4;
   optional bool refresh = 5;
 
 }
