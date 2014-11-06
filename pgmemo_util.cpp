@@ -11,7 +11,7 @@ bson::Document parse_config(const std::string & fname)
   std::ifstream fin(fname.c_str());
   bson::JSON_Loader loader;
   bson::Document confd(loader.parse(fin));
-  
+  //set some sane defaults?
   return confd;
 }
 
@@ -20,7 +20,8 @@ std::string connstr(const bson::Document & conf, const std::string & dbn)
   std::stringstream ss;
   ss << "dbname=" << dbn;
   for (const std::string & s: conf.field_names())
-    ss << " " << s << "=" << conf[s].data<std::string>();
+    if (s.find("redis") == std::string::npos)
+      ss << " " << s << "=" << conf[s].data<std::string>();
   return ss.str();
 }
 
@@ -58,4 +59,28 @@ void pg_query(PGMemoRequest & pgmr, const bson::Document & conf)
   }
   else
     pgmr.set_result_json(static_cast<std::string>(rows[0]));
+}
+
+void memo_query(PGMemoRequest& pgmr, const bson::Document & conf)
+{
+  std::string redissrv;
+  long redisprt;
+  conf["redishost"].data(redissrv);
+  conf["redisport"].data(redisprt);
+  redisContext *c = redisConnect(redissrv.c_str(), (int)redisprt);
+  redisReply *reply;
+  reply = (redisReply *)redisCommand(c, "GET %s", pgmr.query().c_str());
+  if (reply && reply->type == REDIS_REPLY_STRING)
+  {
+    pgmr.set_result_json(std::string(reply->str, reply->len));
+    pgmr.set_cached(true);
+  }
+  else
+  {
+    pg_query(pgmr, conf);
+    redisCommand(c, "SET %s %s", pgmr.query().c_str(), pgmr.result_json().c_str());
+  }
+  if (reply)
+    freeReplyObject(reply);
+  return;
 }

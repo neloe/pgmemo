@@ -18,7 +18,7 @@ set ( pgmemo_src
 
 add_executable(pgmemo ${pgmemo_src})
 
-target_link_libraries(pgmemo fastbson ${PROTOBUF_LIBRARY} pqxx)
+target_link_libraries(pgmemo fastbson ${PROTOBUF_LIBRARY} pqxx hiredis)
 
 add_custom_command( OUTPUT pgmemo.pb.cc
                     COMMAND protoc pgmemo.proto --cpp_out=${CMAKE_BINARY_DIR}

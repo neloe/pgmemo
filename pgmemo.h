@@ -8,6 +8,7 @@
 #define PGMEMO_H
 
 #include <fstream>
+#include <hiredis/hiredis.h>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -44,9 +45,18 @@ std::shared_ptr< pqxx::connection >& getconn(const bson::Document& conf, const s
 
 /*!
  * \brief checks to see if the query has been cached, returns the value
- * \pre None
+ * \pre pgmr does not have a chached flag or a result_json value
  * \post Connects to database if a refresh is requested or the query has not been cached
  * \post Modifies the passed in protobuf to contain a json string with the query result
  */
+void memo_query(PGMemoRequest& pgmr, const bson::Document & conf);
+
+/*!
+ * \brief connects to the postgres database and performs the query
+ * \pre None
+ * \post Connects to the database, performs query
+ */
 void pg_query(PGMemoRequest& pgmr, const bson::Document & conf); 
+
+
 #endif

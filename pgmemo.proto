@@ -4,5 +4,6 @@ message PGMemoRequest{
   optional bool refresh = 3;
   
   optional string result_json = 4;
+  optional bool cached = 5;
 
 }
