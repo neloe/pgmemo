@@ -58,5 +58,11 @@ void memo_query(PGMemoRequest& pgmr, const bson::Document & conf);
  */
 void pg_query(PGMemoRequest& pgmr, const bson::Document & conf); 
 
+/*!
+ * \brief refreshes the cached result
+ * \pre None
+ * \post the postgres box is hit, cache is updated
+ */
+void update_cache(PGMemoRequest& pgmr, const bson::Document & conf); 
 
 #endif

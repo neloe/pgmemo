@@ -77,10 +77,26 @@ void memo_query(PGMemoRequest& pgmr, const bson::Document & conf)
   }
   else
   {
-    pg_query(pgmr, conf);
-    redisCommand(c, "SET %s %s", pgmr.query().c_str(), pgmr.result_json().c_str());
+    std::cout << "not cached" << std::endl;
+    update_cache(pgmr, conf);
   }
   if (reply)
     freeReplyObject(reply);
+  if (c)
+    redisFree(c);
+  return;
+}
+
+void update_cache(PGMemoRequest& pgmr, const bson::Document & conf)
+{
+  std::string redissrv;
+  long redisprt;
+  conf["redishost"].data(redissrv);
+  conf["redisport"].data(redisprt);
+  redisContext *c = redisConnect(redissrv.c_str(), (int)redisprt);
+  pg_query(pgmr, conf);
+  redisCommand(c, "SET %s %s", pgmr.query().c_str(), pgmr.result_json().c_str());
+  if (c)
+    redisFree(c);
   return;
 }
