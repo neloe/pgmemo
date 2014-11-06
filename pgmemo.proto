@@ -1,5 +1,8 @@
 message PGMemoRequest{
+  required string dbname = 1;
   required string query = 2;
-  optional bool refresh = 5;
+  optional bool refresh = 3;
+  
+  optional string result_json = 4;
 
 }
