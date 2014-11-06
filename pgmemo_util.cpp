@@ -20,7 +20,7 @@ std::string connstr(const bson::Document & conf, const std::string & dbn)
   std::stringstream ss;
   ss << "dbname=" << dbn;
   for (const std::string & s: conf.field_names())
-    if (s.find("redis") == std::string::npos)
+    if (s.find("redis") == std::string::npos && s.find("zmq") == std::string::npos)
       ss << " " << s << "=" << conf[s].data<std::string>();
   return ss.str();
 }

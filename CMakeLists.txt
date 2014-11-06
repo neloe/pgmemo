@@ -4,6 +4,7 @@ project(pgmemo)
 #enable c++ 11
 SET(CMAKE_CXX_FLAGS "-std=c++11 -g ${CMAKE_CXX_FLAGS}")
 add_subdirectory(bson)
+add_subdirectory(zmq)
 #Protocol buffers
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIR})
@@ -18,7 +19,7 @@ set ( pgmemo_src
 
 add_executable(pgmemo ${pgmemo_src})
 
-target_link_libraries(pgmemo fastbson ${PROTOBUF_LIBRARY} pqxx hiredis)
+target_link_libraries(pgmemo fastbson zmqcpp ${PROTOBUF_LIBRARY} pqxx hiredis)
 
 add_custom_command( OUTPUT pgmemo.pb.cc
                     COMMAND protoc pgmemo.proto --cpp_out=${CMAKE_BINARY_DIR}
