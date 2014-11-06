@@ -19,6 +19,5 @@ add_executable(pgmemo ${pgmemo_src})
 target_link_libraries(pgmemo ${PROTOBUF_LIBRARY})
 
 add_custom_command( OUTPUT pgmemo.pb.cc
-                    PRE_BUILD
                     COMMAND protoc pgmemo.proto --cpp_out=${CMAKE_BINARY_DIR}
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
