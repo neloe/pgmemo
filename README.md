@@ -26,6 +26,9 @@ Sample configuration file:
 ## Building
 This uses a cmake based build system; from the source directory: `mkdir build; cd build; cmake ..; make`
 
+## Running
+As easy as `/path/to/pgmemo configuration_file`.
+
 ## Querying
 pgmemo uses a protocol buffer to perform it's communication.  The required fields are the query field and the dbname field.  If you want to force a refresh of the cache (after sending the cached value), you may set the refresh field to true.  Example (C++):
 ```cpp
