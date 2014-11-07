@@ -4,3 +4,6 @@
 [submodule "zmq"]
 	path = zmq
 	url = git@github.com:neloe/EasyZMQ-Cpp.git
+[submodule "tests/gtest"]
+	path = tests/gtest
+	url = git@github.com:neloe/gtest

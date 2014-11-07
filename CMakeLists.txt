@@ -5,6 +5,7 @@ project(pgmemo)
 SET(CMAKE_CXX_FLAGS "-std=c++11 -g ${CMAKE_CXX_FLAGS}")
 add_subdirectory(bson)
 add_subdirectory(zmq)
+add_subdirectory(tests)
 #Protocol buffers
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIR})
