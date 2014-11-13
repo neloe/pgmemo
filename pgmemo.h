@@ -33,7 +33,7 @@ bson::Document parse_config (const std::string & fname);
  * \returns the connection string
  */
 
-std::string connstr(const bson::Document & c, const std::string & dbn);
+std::string connstr(const bson::Document& conf);
 
 /*!
  * \brief Gets a connection based on the supplied configuration and database name
@@ -41,7 +41,7 @@ std::string connstr(const bson::Document & c, const std::string & dbn);
  * \post the configuration is set to the connection in the pool
  * \post if a connection does not exist in the pool to the dbname, creates a new one
  */
-std::shared_ptr< pqxx::connection >& getconn(const bson::Document& conf, const std::string& dbn);
+std::shared_ptr< pqxx::connection >& getconn(const bson::Document& conf);
 
 /*!
  * \brief checks to see if the query has been cached, returns the value

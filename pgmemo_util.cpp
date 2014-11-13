@@ -15,27 +15,24 @@ bson::Document parse_config(const std::string & fname)
   return confd;
 }
 
-std::string connstr(const bson::Document & conf, const std::string & dbn)
+std::string connstr(const bson::Document & conf )
 {
   std::stringstream ss;
-  ss << "dbname=" << dbn;
   for (const std::string & s: conf.field_names())
     if (s.find("redis") == std::string::npos && s.find("zmq") == std::string::npos)
-      ss << " " << s << "=" << conf[s].data<std::string>();
+      ss << s << "=" << conf[s].data<std::string>() << " ";
   return ss.str();
 }
 
-std::shared_ptr<pqxx::connection>& getconn(const bson::Document & conf, const std::string & dbn)
+std::shared_ptr<pqxx::connection>& getconn(const bson::Document & conf )
 {
-  static std::map<std::string, std::shared_ptr<pqxx::connection>> connpool;
-  if (!connpool.count(dbn))
-    connpool[dbn] = std::make_shared<pqxx::connection>(connstr(conf, dbn).c_str());
-  return connpool[dbn];
+  static std::shared_ptr<pqxx::connection> conn = std::make_shared<pqxx::connection>(connstr(conf).c_str());
+  return conn;
 }
 
 void pg_query(PGMemoRequest & pgmr, const bson::Document & conf)
 {
-  pqxx::work txn(*(getconn(conf, pgmr.dbname())));
+  pqxx::work txn(*(getconn(conf)));
   pqxx::result r = txn.exec(pgmr.query().c_str());
   std::vector<bson::Element> rows;
   bson::Document res;
