@@ -47,7 +47,6 @@ TEST(DeviceInsertion, SameDevSameID)
   PGMemoRequest input;
   PGMemoRequest output;
   std::string res;
-  input.set_dbname("postgres");
   input.set_query("select clock_timestamp();");
   socket << input;
   socket >> output;
