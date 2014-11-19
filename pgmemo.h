@@ -65,4 +65,20 @@ void pg_query(PGMemoRequest& pgmr, const bson::Document & conf);
  */
 void update_cache(PGMemoRequest& pgmr, const bson::Document & conf); 
 
+inline std::string _lockstr(const std::string & q) {return "__lock__" + q;}
+
+/*!
+ * \brief acquires the "lock" to avoid queueing up several identical requests
+ * \pre None
+ * \post If no entry in the cache, writes  _lockstr(query), true to the db
+ * \return true if a lock was written to the db, false otherwise
+ */
+bool acquire_lock(const std::string& query, redisContext* c);
+
+/*!
+ * \brief releases the "lock"
+ * \pre None
+ * \post Removes the _lockstr(query), true from the db
+ */
+void release_lock(const std::string& query, redisContext* c);
 #endif

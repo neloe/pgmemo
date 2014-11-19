@@ -74,7 +74,6 @@ void memo_query(PGMemoRequest& pgmr, const bson::Document & conf)
   }
   else
   {
-    std::cout << "not cached" << std::endl;
     update_cache(pgmr, conf);
   }
   if (reply)
@@ -91,9 +90,29 @@ void update_cache(PGMemoRequest& pgmr, const bson::Document & conf)
   conf["redishost"].data(redissrv);
   conf["redisport"].data(redisprt);
   redisContext *c = redisConnect(redissrv.c_str(), (int)redisprt);
-  pg_query(pgmr, conf);
-  redisCommand(c, "SET %s %s", pgmr.query().c_str(), pgmr.result_json().c_str());
+  if (!pgmr.cached() && acquire_lock(pgmr.query(), c))
+  {
+    pg_query(pgmr, conf);
+    redisCommand(c, "SET %s %s", pgmr.query().c_str(), pgmr.result_json().c_str());
+    release_lock(pgmr.query(), c);
+  }
   if (c)
     redisFree(c);
+  return;
+}
+
+bool acquire_lock(const std::string & query, redisContext * c)
+{
+  redisReply *reply;
+  reply = (redisReply *)redisCommand(c, "GET %s", _lockstr(query).c_str());
+  if (reply && reply->type == REDIS_REPLY_STRING)
+    return false;
+  redisCommand(c, "SET %s %s", _lockstr(query).c_str(), "true");
+  return true;
+}
+
+void release_lock(const std::string & query, redisContext * c )
+{
+  redisCommand(c, "DEL %s", _lockstr(query).c_str());
   return;
 }
