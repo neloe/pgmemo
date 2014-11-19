@@ -17,6 +17,7 @@
 #include <vector>
 #include "bson/json/jsonloader.h"
 #include "pgmemo.pb.h"
+#include <algorithm>
 
 /*!
  * \brief parses the configuration file specified, setting defaults if something not specified
@@ -65,7 +66,21 @@ void pg_query(PGMemoRequest& pgmr, const bson::Document & conf);
  */
 void update_cache(PGMemoRequest& pgmr, const bson::Document & conf); 
 
-inline std::string _lockstr(const std::string & q) {return "__lock__" + q;}
+/*!
+ * \brief generates the "hash" of the query
+ * \pre None
+ * \post None
+ * \returns the query with all of the spaces removed
+ */
+inline std::string _h(std::string q) {q.erase(remove_if(q.begin(), q.end(), isspace), q.end()); return q;}
+
+/*!
+ * \brief generates the lock string
+ * \pre None
+ * \post None
+ * \returns the lock string
+ */
+inline std::string _lockstr(const std::string & q) {return "__lock__" + _h(q);}
 
 /*!
  * \brief acquires the "lock" to avoid queueing up several identical requests
@@ -75,10 +90,17 @@ inline std::string _lockstr(const std::string & q) {return "__lock__" + q;}
  */
 bool acquire_lock(const std::string& query, redisContext* c);
 
-/*!
- * \brief releases the "lock"
- * \pre None
- * \post Removes the _lockstr(query), true from the db
- */
-void release_lock(const std::string& query, redisContext* c);
+
+// Class for RAII locking
+class lock
+{
+  public:
+    lock(const std::string & query, std::string host, int port): q(query) {ctx = redisConnect(host.c_str(), port); has_lock = acquire_lock(query, ctx);}
+    ~lock() {redisCommand(ctx, "DEL %s", _lockstr(q).c_str()); redisFree(ctx);}
+    bool locked() const {return has_lock;}
+  private:
+    std::string q;
+    redisContext * ctx;
+    bool has_lock;
+};
 #endif
