@@ -72,8 +72,10 @@ void pg_query(PGMemoRequest & pgmr, const bson::Document & conf)
     res.add("rows", rows);
     pgmr.set_result_json(static_cast<std::string>(bson::Element(res)));
   }
-  else
+  else if (rows.size())
     pgmr.set_result_json(static_cast<std::string>(rows[0]));
+  else
+    pgmr.set_result_json("{}");
 }
 
 void memo_query(PGMemoRequest& pgmr, const bson::Document & conf)
